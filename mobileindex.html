@@ -634,10 +634,9 @@
         }
 
         function positionAndAttachAutocomplete(input) {
-            var wrap = input.parentNode;
             input.addEventListener('input', function() {
                 var matches = smartFilter(this.value);
-                var existing = wrap.querySelector('.ac-list');
+                var existing = document.body.querySelector('.ac-list');
                 if (existing) existing.parentNode.removeChild(existing);
                 if (matches.length === 0) return;
 
@@ -661,7 +660,12 @@
                     list.appendChild(item);
                 });
 
-                wrap.appendChild(list); list.classList.add('open');
+                var rect = input.getBoundingClientRect();
+                list.style.width = rect.width + 'px';
+                list.style.left = (rect.left + window.scrollX) + 'px';
+                list.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+
+                document.body.appendChild(list); list.classList.add('open');
                 activeAC = list; activeInput = input;
             });
 
@@ -708,7 +712,7 @@
             abn: { req: true, run: function(v) { return { ok: v.replace(/\D/g, '').length === 11, m: 'Requires ABN 11 digits' }; }},
             bank: { req: false, run: function() { return { ok: true, m: '' }; }},
             accname: { req: false, run: function() { return { ok: true, m: '' }; }},
-            bsb: { req: true, run: function(v) { return { ok: v.replace(/\D/g, '').length === 6, m: 'Requires BSB 6 digits' }; }},
+            bsb: { req: true, run: function(v) { var d = v.replace(/\D/g, ''); return { ok: d.length === 6, m: 'Requires BSB 6 digits' }; }},
             accnum: { req: true, run: function(v) { var d = v.replace(/\D/g, ''); return { ok: d.length >= 6 && d.length <= 10, m: 'Account must be 6-10 digits' }; }}
         };
 
@@ -826,6 +830,7 @@
             calculateFinancialTotals();
         }
 
+        // Segment mapping setter update to prevent type failures
         function setSegmentedType(btn) {
             var wrap = btn.parentNode; wrap.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
             btn.classList.add('active'); var val = btn.getAttribute('data-val');
