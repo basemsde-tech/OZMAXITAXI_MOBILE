@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>OZ Maxi Taxi Premium Mobile Portal</title>
+    <style>
+        /* LUXURY SYSTEM VARIABLES */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        :root {
+            --brand-green: #2e7d32;
+            --brand-green-light: rgba(46, 125, 50, 0.15);
+            --brand-gold: #ffb300;
+            --brand-red: #d32f2f;
+            --brand-blue: #0078d4;
+            
+            /* Light Luxury Theme */
+            --bg-glass: #f4f6fa;
+            --surface-glass: rgba(255, 255, 255, 0.9);
+            --surface-solid: #ffffff;
+            --panel-bg: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-line: #e2e8f0;
+            --input-focus: #2e7d32;
+            --blur-radius: 20px;
+            --card-shadow: 0 8px 32px rgba(148, 163, 184, 0.12);
+        }
+
+        [data-theme="dark"] {
+            /* Dark Luxury Theme */
+            --bg-glass: #090d16;
+            --surface-glass: rgba(20, 27, 41, 0.9);
+            --surface-solid: #141b27;
+            --panel-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-line: #1e293b;
+            --input-focus: #4caf50;
+            --card-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        html, body {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
+            background-color: var(--bg-glass);
+            color: var(--text-main);
+            min-height: 100vh;
+            letter-spacing: -0.2px;
+        }
+
+        body {
+            padding: env(safe-area-inset-top, 16px) 0 calc(120px + env(safe-area-inset-bottom, 16px)) 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 12px;
+        }
+
+        /* GLASSMORPHISM CARD DESIGN */
+        .glass-card {
+            background-color: var(--surface-glass);
+            backdrop-filter: blur(var(--blur-radius));
+            -webkit-backdrop-filter: blur(var(--blur-radius));
+            border-radius: 16px;
+            border: 1px solid var(--border-line);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 16px;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* PREMIUM HEADER */
+        .header-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 4px 16px 4px;
+        }
+        .brand-logo-text { font-size: 28px; font-weight: 900; letter-spacing: -0.8px; line-height: 1; }
+        .brand-logo-sub { font-size: 10px; text-transform: uppercase; letter-spacing: 3px; color: var(--text-muted); font-weight: 800; margin-top: 5px; }
+        .oz { color: var(--brand-green); }
+        .maxi { color: var(--brand-gold); }
+        
+        .control-group { display: flex; gap: 12px; }
+        .action-circle-btn {
+            background-color: var(--surface-glass);
+            border: 1px solid var(--border-line);
+            color: var(--text-main);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--card-shadow);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .action-circle-btn:active { transform: scale(0.92); }
+        .action-circle-btn.open { transform: rotate(45deg); background-color: var(--text-main); color: var(--surface-solid); }
+
+        /* SMOOTH ANIMATED OPTIONS DRAWER */
+        .sliding-drawer {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+        .sliding-drawer.open {
+            max-height: 1200px;
+            opacity: 1;
+            margin-bottom: 16px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .drawer-heading { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; letter-spacing: 0.8px; }
+
+        /* PREMIUM USER FIELDS */
+        .field-box { margin-bottom: 16px; position: relative; }
+        .field-box:last-child { margin-bottom: 0; }
+        .field-box label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            height: 48px;
+            padding: 10px 14px;
+            font-size: 16px;
+            font-family: inherit;
+            color: var(--text-main);
+            background-color: var(--panel-bg);
+            border: 1.5px solid var(--border-line);
+            border-radius: 10px;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s;
+        }
+        input:focus, select:focus {
+            border-color: var(--input-focus);
+            background-color: var(--surface-solid);
+            box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%2364748b' d='M0 0l6 6 6-6z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 42px;
+            cursor: pointer;
+        }
+
+        .validation-hint { font-size: 11px; margin-top: 4px; min-height: 14px; color: var(--text-muted); transition: color 0.2s; }
+        .validation-hint.error { color: var(--brand-red); font-weight: 600; }
+        .validation-hint.ok { color: var(--brand-green); font-weight: 600; }
+
+        /* HORIZONTAL LOG TABLE CONFIGURATIONS */
+        .section-headline { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin: 24px 4px 12px 4px; letter-spacing: 0.6px; }
+        
+        .scrolling-table-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border: 1px solid var(--border-line);
+            border-radius: 14px;
+            background-color: var(--surface-solid);
+            box-shadow: var(--card-shadow);
+        }
+        
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        
+        thead th {
+            background-color: var(--text-main);
+            color: var(--surface-solid);
+            padding: 14px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            text-align: left;
+        }
+        
+        tbody td {
+            padding: 14px 8px;
+            border-bottom: 1px solid var(--border-line);
+            vertical-align: middle;
+            background-color: var(--surface-solid);
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        
+        td input { height: 40px; font-size: 15px; padding: 6px 10px; border-radius: 8px; }
+
+        /* COLUMN METRIC BALANCING */
+        .col-date { width: 125px; }
+        .col-route { width: 250px; }
+        .col-qty { width: 65px; text-align: center; }
+        .col-rate { width: 135px; }
+        .col-note { width: 135px; }
+        .col-amt-del { width: 110px; text-align: right; }
+
+        .date-masked-input { font-variant-numeric: tabular-nums; text-align: center; }
+        .qty-input { text-align: center; }
+        
+        .route-flex-box { display: flex; align-items: center; gap: 6px; }
+        .route-flex-box .ac-wrap { flex: 1; min-width: 0; }
+        .arrow-badge-icon {
+            flex-shrink: 0; background-color: var(--text-main); color: var(--surface-solid);
+            font-size: 9px; font-weight: 800; padding: 4px 6px; border-radius: 5px;
+            user-select: none;
+        }
+
+        .rate-flex-column { display: flex; flex-direction: column; gap: 4px; }
+        .segment-toggle-row {
+            display: flex; background-color: var(--panel-bg); padding: 2px; border-radius: 6px; border: 1px solid var(--border-line);
+        }
+        .segment-btn {
+            flex: 1; font-size: 9px; font-weight: 800; padding: 5px 0;
+            border: none; border-radius: 4px; background: transparent; color: var(--text-muted);
+            cursor: pointer; -webkit-tap-highlight-color: transparent;
+        }
+        .segment-btn.active {
+            background-color: var(--surface-solid); color: var(--text-main); box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* NOTE DRAWER EXPANSIONS */
+        .note-reveal-link {
+            font-size: 12px; font-weight: 700; color: var(--brand-green);
+            cursor: pointer; text-decoration: none; display: inline-block;
+        }
+        .note-reveal-link:hover { text-decoration: underline; }
+        .note-input-wrapper { display: none; position: relative; width: 100%; }
+        .note-input-wrapper.active { display: block; }
+        .note-style-input { font-size: 12px; font-style: italic; background-color: var(--panel-bg); padding-right: 22px; }
+        .note-remove-x {
+            position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: 11px; font-weight: bold; cursor: pointer;
+        }
+
+        .amt-delete-flex { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+        .val-total-amount { font-weight: 700; color: var(--brand-green); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+        /* BUTTON WRAPPERS */
+        .action-flex-strip { display: flex; gap: 12px; margin: 20px 4px; }
+        .btn-panel {
+            flex: 1; height: 48px; border-radius: 12px; border: none;
+            font-size: 14px; font-weight: 700; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: var(--card-shadow); transition: transform 0.1s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-panel:active { transform: scale(0.97); }
+        .btn-panel-green { background-color: var(--brand-green); color: #fff; }
+        .btn-panel-dark { background-color: var(--text-main); color: var(--surface-solid); }
+        
+        .btn-line-kill {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 24px; height: 24px; background-color: #fee2e2; color: var(--brand-red);
+            border: none; border-radius: 6px; font-weight: bold; font-size: 10px; cursor: pointer;
+        }
+
+        /* BOTTOM REMITTANCE ACCENT */
+        .remit-summary-box {
+            background-color: var(--panel-bg); border: 1.5px solid var(--border-line); border-radius: 14px;
+            padding: 16px; font-size: 13px; line-height: 1.6; margin-bottom: 24px; margin-top: 16px;
+        }
+        .remit-summary-box div { margin-bottom: 5px; display: flex; justify-content: space-between; }
+        .remit-summary-box div:last-child { margin-bottom: 0; }
+        .remit-summary-box span:first-child { color: var(--text-muted); font-weight: 600; }
+        .remit-summary-box span:last-child { color: var(--text-main); font-weight: 700; }
+
+        /* FLOATING SUGGEST DROPDOWN FIXES */
+        .ac-list {
+            display: none; position: absolute; background-color: var(--surface-solid);
+            border: 2px solid var(--brand-green); border-radius: 10px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.15); z-index: 999999;
+            max-height: 180px; overflow-y: auto; margin-top: 4px;
+        }
+        .ac-list.open { display: block; }
+        .ac-item { padding: 12px 14px; font-size: 15px; border-bottom: 1px solid var(--border-line); cursor: pointer; color: var(--text-main); text-align: left; }
+        .ac-item:last-child { border-bottom: none; }
+        .ac-item.touched { background-color: var(--brand-green-light); color: var(--brand-green); }
+
+        /* ULTRA SMOOTH FLOATING CONTROL COCKPIT */
+        .floating-summary-dashboard {
+            position: fixed; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); right: 16px;
+            background-color: var(--surface-glass); color: var(--text-main);
+            backdrop-filter: blur(var(--blur-radius)); -webkit-backdrop-filter: blur(var(--blur-radius));
+            padding: 14px 20px; border-radius: 20px; border: 1px solid var(--border-line);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.15);
+            display: flex; justify-content: space-between; align-items: center; z-index: 99999;
+        }
+        .cockpit-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.8px; }
+        .cockpit-value { font-size: 26px; font-weight: 900; color: var(--brand-green); font-variant-numeric: tabular-nums; line-height: 1; margin-top: 2px; }
+        
+        .cockpit-actions { display: flex; gap: 12px; }
+        .cockpit-btn {
+            width: 48px; height: 48px; border-radius: 14px; border: none;
+            font-size: 18px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.1s ease; -webkit-tap-highlight-color: transparent;
+        }
+        .cockpit-btn:active { transform: scale(0.92); }
+        .btn-cockpit-print { background-color: var(--brand-red); }
+        .btn-cockpit-outlook { background-color: var(--brand-blue); }
+
+        /* INK PAPER HARDWARE COMPILER VIEWPORT */
+        .print-only { display: none; }
+        
+        @media print {
+            @page { size: A4; margin: 16mm 14mm 14mm 14mm; }
+            .no-print, .floating-summary-dashboard, #toast, .btn-line-kill, .note-reveal-link, .note-remove-x, .segment-toggle-row, .action-flex-strip { display: none !important; }
+            body { background: #fff; padding: 0; font-size: 9pt; color: #000; }
+            .container { max-width: 100%; padding: 0; margin: 0; }
+            .print-only { display: block !important; }
+
+            .print-header {
+                display: flex !important; justify-content: space-between; align-items: flex-start;
+                border-bottom: 2.5px solid #1b5e20; padding-bottom: 11px; margin-bottom: 14px;
+            }
+            .print-header h1 { font-size: 22pt; font-weight: 900; line-height: 1.05; letter-spacing: -0.5px; color: #1b5e20; }
+            .print-header p { font-size: 7.5pt; color: #666; font-weight: 700; letter-spacing: 2px; margin-top: 3px; text-transform: uppercase; }
+            .print-title-wrapper { text-align: right; }
+            .print-title-wrapper h2 { font-size: 17pt; font-weight: 800; text-transform: uppercase; color: #1a2332; }
+            .print-title-wrapper p { font-size: 8.5pt; color: #444; margin-top: 5px; }
+
+            .print-meta-grid { display: flex !important; gap: 10px; margin-bottom: 14px; }
+            .print-meta-card { flex: 1; padding: 8px 12px; font-size: 8.5pt; line-height: 1.8; border-left: 3px solid #1a2332; background: #f9f9f9; }
+            .print-meta-card.accent { border-left-color: #1b5e20; }
+            .print-meta-card h3 { font-size: 7pt; text-transform: uppercase; color: #999; margin-bottom: 4px; font-weight: 700; letter-spacing: 0.8px;}
+            .print-meta-card strong { display: inline-block; width: 80px; color: #666; }
+
+            .scrolling-table-container { border: none; border-radius: 0; box-shadow: none; overflow: visible; }
+            table { display: table !important; width: 100% !important; border-collapse: collapse !important; table-layout: fixed !important; }
+            thead { display: table-header-group !important; }
+            thead th { background: #1a2332 !important; color: #fff !important; font-size: 7.5pt; padding: 6px 7px; text-align: left; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
+            tbody { display: table-row-group !important; }
+            tbody tr { display: table-row !important; page-break-inside: avoid; }
+            tbody td { display: table-cell !important; padding: 5px 7px; border-bottom: 1px solid #e5e5e5 !important; font-size: 8.5pt; background: transparent !important; color: #000 !important; }
+
+            input, select {
+                border: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important;
+                font-size: 8.5pt !important; height: auto !important; min-height: 0 !important; appearance: none;
+                -webkit-appearance: none; box-shadow: none !important; color: #000 !important; width: auto !important; display: block !important;
+            }
+            
+            input::placeholder { color: transparent !important; opacity: 0 !important; }
+
+            .route-flex-box { display: block !important; }
+            .route-flex-box input { display: inline-block !important; width: 44% !important; vertical-align: middle !important; }
+            .arrow-badge-icon { display: inline-block !important; width: 8% !important; text-align: center; background: transparent !important; color: #555 !important; font-size: 7.5pt; padding: 0 !important; vertical-align: middle !important; }
+            
+            .rate-flex-column { display: block !important; }
+            .price-input { display: inline-block !important; width: auto !important; max-width: 55px !important; font-size: 8.5pt !important; vertical-align: middle !important; }
+            .rate-type-label { display: inline-block !important; font-size: 8pt; color: #666; width: auto; vertical-align: middle !important; margin-left: 2px !important; }
+
+            .date-masked-input { display: block !important; width: 100% !important; text-align: center !important; font-size: 8.5pt !important; }
+            .qty-input { text-align: center !important; display: block !important; width: 100% !important; }
+            .note-input-wrapper:not(.active) { display: none !important; }
+            .note-style-input { font-style: italic; color: #555 !important; font-size: 8pt !important; display: block !important; width: 100% !important; }
+
+            .val-total-amount { font-size: 8.5pt; color: #1b5e20 !important; font-weight: 700; display: block !important; text-align: right !important; }
+
+            .print-totals-box { width: 175px; margin-left: auto; margin-top: 14px; font-size: 9pt; }
+            .print-totals-row { display: flex; justify-content: space-between; padding: 4px 2px; border-bottom: 1px solid #f0f0f0; }
+            .print-totals-row.grand { font-size: 12pt; font-weight: 800; border-top: 2px solid #1a2332; border-bottom: none; color: #1b5e20 !important; margin-top: 4px; padding-top: 6px; }
+            .print-footer-signature { display: block !important; text-align: center; font-size: 9pt !important; font-weight: 600 !important; color: #1a2332 !important; border-top: 1.5px solid #1b5e20 !important; margin-top: 24px !important; padding-top: 10px !important; }
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div id="toast" role="status" aria-live="polite"></div>
+
+    <div class="print-only container">
+        <div class="print-header">
+            <div>
+                <h1><span class="oz">OZ</span> <span class="maxi">MAXI TAXI</span></h1>
+                <p>Personal Taxi Services</p>
+            </div>
+            <div class="print-title-wrapper">
+                <h2>Tax Invoice</h2>
+                <p>Invoice #: <span id="p-invnum">-</span></p>
+            </div>
+        </div>
+
+        <div class="print-meta-grid">
+            <div class="print-meta-card">
+                <h3>Provider Details</h3>
+                <div><strong>Driver:</strong> <span id="p-driver">-</span></div>
+                <div><strong>Mobile:</strong> <span id="p-mobile">-</span></div>
+                <div><strong>ABN:</strong> <span id="p-abn">-</span></div>
+            </div>
+            <div class="print-meta-card accent">
+                <h3>Client &amp; Reference</h3>
+                <div><strong>Client:</strong> <span id="p-client" style="font-weight:700; color:#1b5e20;">-</span></div>
+                <div><strong>Reference:</strong> <span id="p-ref">-</span></div>
+                <div><strong>Units:</strong> <span id="p-units">-</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container no-print">
+        
+        <div class="header-main">
+            <div>
+                <div class="brand-logo-text"><span class="oz">OZ</span> <span class="maxi">MAXI TAXI</span></div>
+                <div class="brand-logo-sub">Personal Taxi Services</div>
+            </div>
+            <div class="control-group">
+                <button class="action-circle-btn" id="themeToggle" onclick="toggleThemeEngine()" aria-label="Toggle Dark Mode">🌓</button>
+                <button class="action-circle-btn" id="settingsToggle" onclick="toggleSettingsDrawer()" aria-label="Toggle Preferences">&#9881;</button>
+            </div>
+        </div>
+
+        <div class="glass-card sliding-drawer" id="setupDrawer">
+            <div class="drawer-heading">Profile Configuration Parameters</div>
+            <div class="field-box">
+                <label>Driver Name</label>
+                <input id="s-name" autocomplete="name" oninput="validateField('name')">
+                <div class="validation-hint" id="hint-name"></div>
+            </div>
+            <div class="field-box">
+                <label>Mobile Contact</label>
+                <input id="s-mobile" inputmode="tel" maxlength="12" oninput="fmtMobile(this); validateField('mobile')">
+                <div class="validation-hint" id="hint-mobile">04xx xxx xxx</div>
+            </div>
+            <div class="field-box">
+                <label>ABN</label>
+                <input id="s-abn" inputmode="numeric" maxlength="14" oninput="fmtABN(this); validateField('abn')">
+                <div class="validation-hint" id="hint-abn">xx xxx xxx xxx</div>
+            </div>
+            <div class="field-box">
+                <label>Bank Name</label>
+                <select id="s-bank" onchange="validateField('bank')">
+                    <option value="">- Select Bank -</option>
+                    <option>Commonwealth Bank (CBA)</option>
+                    <option>Westpac</option>
+                    <option>ANZ</option>
+                    <option>NAB</option>
+                    <option>Bendigo Bank</option>
+                    <option>Up Bank</option>
+                </select>
+                <div class="validation-hint" id="hint-bank"></div>
+            </div>
+            <div class="field-box">
+                <label>Account Name</label>
+                <input id="s-accname" oninput="validateField('accname')">
+                <div class="validation-hint" id="hint-accname"></div>
+            </div>
+            <div class="field-box">
+                <label>BSB</label>
+                <input id="s-bsb" inputmode="numeric" maxlength="7" oninput="fmtBSB(this); validateField('bsb')">
+                <div class="validation-hint" id="hint-bsb">xxx-xxx</div>
+            </div>
+            <div class="field-box">
+                <label>Account Number</label>
+                <input id="s-accnum" inputmode="numeric" maxlength="10" oninput="validateField('accnum')">
+                <div class="validation-hint" id="hint-accnum"></div>
+            </div>
+            <div style="margin-top: 18px; display: flex; gap: 12px;">
+                <button class="btn-panel btn-panel-dark" onclick="saveProfileData()">Save Profile</button>
+                <button class="btn-panel btn-panel-green" onclick="clearProfileData()" style="background-color: var(--brand-red);">Wipe Data</button>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <div class="field-box">
+                <label>Client Name Reference</label>
+                <input id="f-client" oninput="syncPrint()" placeholder="Client Name..." autocomplete="off">
+            </div>
+            <div class="field-box">
+                <label>Invoice Identifier</label>
+                <input id="f-invnum" oninput="syncPrint()" autocomplete="off">
+            </div>
+            <div class="field-box">
+                <label>Reference / NDIS ID</label>
+                <input id="f-ref" oninput="syncPrint()" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="section-headline">Trip Logs</div>
+        <div class="scrolling-table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-date">Date</th>
+                        <th class="col-route">Pick Up &rarr; Drop Off</th>
+                        <th class="col-qty" style="text-align:center;">Qty</th>
+                        <th class="col-rate">Rate / $</th>
+                        <th class="col-note">Notes</th>
+                        <th class="col-amt-del" style="text-align:right;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="tripBody"></tbody>
+            </table>
+        </div>
+
+        <div class="action-flex-strip">
+            <button class="btn-panel btn-panel-green" onclick="addNewTableTripRow()">+ Add Trip Row</button>
+            <button class="btn-panel btn-panel-dark" onclick="resetWorksheetInvoiceSequence()">↻ Reset Sheet</button>
+        </div>
+
+        <div class="remit-summary-box">
+            <div style="font-weight:800; border-bottom: 1px dashed var(--border-line); padding-bottom:6px; margin-bottom:8px; text-transform:uppercase; font-size:11px; color:var(--text-muted);">EFT Remittance Targets</div>
+            <div><span>Bank:</span> <span id="b-bank">-</span></div>
+            <div><span>Account Name:</span> <span id="b-accname">-</span></div>
+            <div><span>BSB:</span> <span id="b-bsb">-</span></div>
+            <div><span>Account Number:</span> <span id="b-accnum">-</span></div>
+        </div>
+
+    </div>
+
+    <div class="print-only container" style="margin-top: 12px;">
+        <div class="print-totals-box">
+            <div class="print-totals-row"><span>Subtotal</span><span id="p-sub">$0.00</span></div>
+            <div class="print-totals-row"><span>GST (10%)</span><span id="p-gst">$0.00</span></div>
+            <div class="print-totals-row grand"><span>Total Inc. GST</span><span id="p-total">$0.00</span></div>
+        </div>
+        <div class="print-footer-signature">
+            Thank you for travelling with us - OZ MAXI TAXI
+        </div>
+    </div>
+
+    <div class="floating-summary-dashboard no-print">
+        <div>
+            <div class="cockpit-title">Total Ledger Due</div>
+            <div class="cockpit-value" id="stickyTotalDisplay">$0.00</div>
+        </div>
+        <div class="cockpit-actions">
+            <button class="cockpit-btn btn-cockpit-print" onclick="executeSystemPrintSequence()" title="Print / PDF Sheet">🖨️</button>
+            <button class="cockpit-btn btn-cockpit-outlook" onclick="dispatchOutlookEmailTemplate()" title="Outlook Dispatch Log">📧</button>
+        </div>
+    </div>
+
+    <script>
+        /* COMPREHENSIVE REGIONAL SPATIAL INDEX SUGGESTION REPOSITORY */
+        var LOCATIONS = [
+            "Frankston", "Frankston North", "Frankston South", "Seaford", "Carrum Downs", "Skye", "Langwarrin", "Karingal", "Baxter", "Mornington", "Mount Eliza",
+            "Somerville", "Rosebud", "Rye", "Dromana", "Safety Beach", "McCrae", "Capel Sound", "Hastings", "Tyabb", "Pearcedale",
+            "Cranbourne", "Cranbourne East", "Cranbourne North", "Cranbourne West", "Cranbourne South", "Botanic Ridge", "Junction Village", "Sandhurst", 
+            "Lysterfield", "Narre Warren", "Narre Warren North", "Narre Warren South", "Berwick", "Beaconsfield", "Beaconsfield Upper", "Officer", "Pakenham", 
+            "Clyde", "Clyde North", "Hampton Park", "Hallam", "Endeavour Hills", "Dandenong", "Dandenong South", "Keysborough",
+            "Frankston Hospital (Frankston)", "Peninsula Private Hospital (Frankston)", "St John of God Frankston (Frankston)", "Frankston Community Health (Frankston)", 
+            "Rosebud Hospital (Rosebud)", "Mornington Peninsula Hospital (Frankston)", "Monash Medical Centre (Clayton)", "Casey Hospital (Berwick)", 
+            "Cranbourne Integrated Care Centre (Cranbourne)", "Pakenham Integrated Care Centre (Pakenham)", "Dandenong Hospital (Dandenong)", 
+            "Headspace Frankston (Frankston)", "Peninsula Community Health (Hastings)", "GenesisCare Ringwood (Ringwood)", "Icon Cancer Centre Ringwood (Ringwood)",
+            "Regis Aged Care Frankston (Frankston)", "Regis Aged Care Cranbourne (Cranbourne)", "Bupa Aged Care Berwick (Berwick)", "Arcare Aged Care Epping (Epping)", 
+            "EACH Disability Services (Ringwood)", "Nexus Human Services (Dandenong)", "Wallara Disability (Dandenong South)",
+            "Royal Melbourne Hospital (Parkville)", "The Alfred Hospital (Prahran)", "St Vincent's Hospital (Fitzroy)", "Austin Hospital (Heidelberg)", 
+            "Royal Children's Hospital (Parkville)", "Royal Women's Hospital (Parkville)", "Peter MacCallum Cancer Centre (Parkville)", "Box Hill Hospital (Box Hill)", 
+            "Maroondah Hospital (Ringwood East)", "Northern Hospital (Epping)", "Sunshine Hospital (St Albans)", "Footscray Hospital (Footscray)", 
+            "Werribee Mercy Hospital (Werribee)", "Broadmeadows Hospital (Broadmeadows)", "Williamstown Hospital (Williamstown)", "Heidelberg Repatriation Hospital (Heidelberg)", 
+            "Angliss Hospital (Upper Ferntree Gully)", "Wantirna Health (Wantirna)", "Sandringham Hospital (Sandringham)", "Moorabbin Hospital (Bentleigh East)",
+            "Epworth Richmond (Richmond)", "Epworth Eastern (Box Hill)", "Epworth Camberwell (Camberwell)", "Cabrini Hospital Malvern (Malvern)", 
+            "Cabrini Hospital Brighton (Brighton)", "Cabrini Wyndham (Hoppers Crossing)", "Knox Private Hospital (Wantirna South)", "Warringal Private Hospital (Heidelberg)", 
+            "Northpark Private Hospital (Bundoora)", "Holmesglen Private Hospital (Moorabbin)", "Melbourne Private Hospital (Parkville)", "Mercy Private Hospital (East Melbourne)", 
+            "Masada Private Hospital (St Kilda East)", "Jessie McPherson Private Hospital (Clayton)", "Linacre Private Hospital (Hampton)", "Waverley Private Hospital (Mount Waverley)", 
+            "Mitcham Private Hospital (Mitcham)", "Valley Private Hospital (Mulgrave)", "Heidelberg Private Hospital (Heidelberg)", "Albert Road Clinic (Albert Park)", 
+            "Avenue Private Hospital (Windsor)", "Ringwood Private Hospital (Ringwood)", "St John of God Berwick (Berwick)",
+            "Caulfield Hospital Rehab (Caulfield)", "Kingston Centre Rehab (Cheltenham)", "Donvale Rehabilitation Hospital (Donvale)", "Bundoora Extended Care Centre (Bundoora)", 
+            "Royal Talbot Rehabilitation Centre (Kew)", "Ivanhoe Day Rehabilitation Centre (Ivanhoe)", "Victorian Rehabilitation Centre (Glen Waverley)",
+            "The Melbourne Clinic (Richmond)", "Upton House Mental Health (Heidelberg)", "Orygen Youth Health (Parkville)", "Alfred Mental Health (Prahran)", 
+            "Monash Health Mental Health (Dandenong)", "NorthWestern Mental Health (Parkville)", "Eastern Health Mental Health (Ringwood East)", "Headspace Melbourne CBD", 
+            "Headspace Camberwell (Camberwell)", "Headspace Dandenong (Dandenong)", "Headspace Sunshine (Sunshine)", "Headspace Werribee (Werribee)", "Headspace Elsternwick (Elsternwick)", 
+            "Windana Drug and Alcohol Rehab (Prahran)", "Spectrum Personality Disorder (Kew)",
+            "Alfred Cancer Centre (Prahran)", "Monash Cancer Centre (Clayton)", "Austin Health Cancer Centre (Heidelberg)", "Box Hill Cancer Centre (Box Hill)", 
+            "Cabrini Cancer Centre (Malvern)", "Epworth Cancer Centre (Richmond)", "GenesisCare St Kilda Road (Melbourne)", "GenesisCare Bundoora (Bundoora)", 
+            "Icon Cancer Centre Richmond (Richmond)", "Icon Cancer Centre Box Hill (Box Hill)", "Icon Cancer Centre Werribee (Werribee)", "Olivia Newton-John Cancer Centre (Heidelberg)",
+            "NephroCare Dialysis Footscray (Footscray)", "NephroCare Dialysis Springvale (Springvale)", "Fresenius Kidney Care Heidelberg (Heidelberg)", "Fresenius Kidney Care Sunshine (Sunshine)", 
+            "Royal Melbourne Renal Unit (Parkville)", "Alfred Renal Unit (Prahran)", "Monash Renal Unit (Clayton)", "Austin Health Renal (Heidelberg)", "Western Health Renal (Footscray)", 
+            "DaVita Dialysis Dandenong (Dandenong)",
+            "Bupa Aged Care Doncaster (Doncaster)", "Bupa Aged Care Caulfield (Caulfield)", "Bupa Aged Care Hawthorn (Hawthorn)", "Regis Aged Care Blackburn (Blackburn)", 
+            "Regis Aged Care Brighton (Brighton)", "Arcare Aged Care Maidstone (Maidstone)", "Arcare Aged Care Surrey Hills (Surrey Hills)", "Arcare Aged Care Craigieburn (Craigieburn)", 
+            "Mecwacare Malvern (Malvern)", "Mecwacare Caulfield (Caulfield)", "Vasey RSL Care Brighton (Brighton)", "Vasey RSL Care Heidelberg (Heidelberg)", "Prague House Aged Care (Kew)", 
+            "Auburn House Aged Care (Hawthorn East)", "Aveo Aged Care Box Hill (Box Hill)", "Aveo Aged Care Templestowe (Templestowe)", "Baptcare Karana (Greensborough)", 
+            "Baptcare Eastwood (Forest Hill)", "Estia Health Altona (Altona)", "Estia Health Heidelberg (Heidelberg)", "Estia Health Keilor (Keilor)", "Bolton Clarke Coburg (Coburg)", 
+            "Bolton Clarke Hawthorn (Hawthorn)", "Ryman Healthcare Wheelers Hill (Wheelers Hill)", "Ryman Healthcare Mill Park (Mill Park)",
+            "Scope Victoria (Hawthorn)", "Yooralla Disability Hub (Melbourne)", "Mambourin Disability Hub (Werribee)", "Aruma Disability Services (Melbourne)", 
+            "Inclusion Melbourne (Armadale)", "Vision Australia (Kooyong)", "Guide Dogs Victoria (Kew)", "Annecto Disability Care (Footscray)", "Better Health Network Cheltenham (Cheltenham)", 
+            "Better Health Network Clayton (Clayton)", "Better Health Network Edithvale (Edithvale)", "Possability (Bundoora)", "Ability First Australia (Alphington)",
+            "Royal Victorian Eye and Ear Hospital (East Melbourne)", "Melbourne Eye Centre (CBD)", "Vision Eye Institute (CBD)", "Skin Health Institute (Carlton)", 
+            "Victorian Heart Hospital (Clayton)", "Melbourne Cardiology (CBD)", "Melbourne Orthopaedic Group (Windsor)", "Melbourne Neuroscience Institute (Parkville)", 
+            "Melbourne Brain Centre (Heidelberg)", "Florey Institute of Neuroscience (Heidelberg)", "Melbourne Spinal Group (CBD)", "Murdoch Childrens Research Institute (Parkville)", 
+            "Melbourne Pathology (multiple locations)", "Australian Clinical Labs (multiple locations)", "I-MED Radiology (multiple locations)", "Epworth Radiology (Richmond)",
+            "cohealth Fitzroy (Fitzroy)", "cohealth Kensington (Kensington)", "cohealth Collingwood (Collingwood)", "cohealth Flemington (Flemington)", "cohealth West Footscray (West Footscray)", 
+            "Merri Health Coburg (Coburg)", "Merri Health Brunswick (Brunswick)", "Merri Health Fawkner (Fawkner)", "Prahran Community Health (Prahran)", "Inspiro Community Health (Lilydale)", 
+            "Sunbury Community Health (Sunbury)", "Darebin Community Health (Preston)", "Manningham Community Health (Doncaster)", "Eastern Community Health (Ringwood)", 
+            "Melton Community Health (Melton)", "Brimbank Community Health (Sunshine)", "Wyndham Community Health (Hoppers Crossing)", "Bayside Community Health (Cheltenham)", "Kingston Community Health (Cheltenham)",
+            "Melbourne Airport (Tullamarine)", "Avalon Airport (Lara)", "Southern Cross Station (Melbourne CBD)", "Flinders Street Station (Melbourne CBD)", "Spencer Street Coach Terminal (CBD)",
+            "Albert Park", "Alphington", "Altona", "Armadale", "Ascot Vale", "Ashburton", "Ashwood", "Aspendale", "Bacchus Marsh", "Balaclava", "Balwyn", "Balwyn North", "Bayswater", 
+            "Belgrave", "Bentleigh", "Bentleigh East", "Blackburn", "Blackburn North", "Blackburn South", "Box Hill", "Brighton", "Brighton East", "Broadmeadows", "Brunswick", 
+            "Brunswick East", "Brunswick West", "Bundoora", "Burwood", "Camberwell", "Canterbury", "Carlton", "Carlton North", "Carnegie", "Caroline Springs", "Caulfield", 
+            "Caulfield North", "Caulfield South", "Chadstone", "Cheltenham", "Clayton", "Clayton South", "Coburg", "Coburg North", "Collingwood", "Diamond Creek", "Doncaster", 
+            "Doncaster East", "Doveton", "East Melbourne", "Edithvale", "Elsternwick", "Eltham", "Elwood", "Epping", "Essendon", "Essendon North", "Fawkner", "Ferntree Gully", 
+            "Fitzroy", "Fitzroy North", "Flemington", "Footscray", "Forest Hill", "Glen Iris", "Glen Waverley", "Glenroy", "Greensborough", "Hampton", "Hampton East", "Hawthorn", 
+            "Hawthorn East", "Heidelberg", "Heidelberg Heights", "Heidelberg West", "Hoppers Crossing", "Huntingdale", "Ivanhoe", "Keilor", "Keilor East", "Kew", "Kew East", 
+            "Kilsyth", "Knoxfield", "Lalor", "Laverton", "Lilydale", "Lower Plenty", "Macleod", "Maidstone", "Malvern", "Malvern East", "Maribyrnong", "Melbourne CBD", "Melton", 
+            "Melton South", "Melton West", "Mentone", "Mill Park", "Mitcham", "Moorabbin", "Mooroolbark", "Mordialloc", "Mount Waverley", "Mulgrave", "Murrumbeena", "Newport", 
+            "Noble Park", "Northcote", "Nunawading", "Oakleigh", "Oakleigh East", "Oakleigh South", "Park Orchards", "Parkville", "Pascoe Vale", "Point Cook", "Port Melbourne", 
+            "Prahran", "Preston", "Reservoir", "Richmond", "Ringwood", "Ringwood East", "Ringwood North", "Rowville", "Sandringham", "Scoresby", "South Melbourne", "South Yarra", 
+            "Southbank", "Springvale", "Springvale South", "St Albans", "St Kilda", "St Kilda East", "St Kilda West", "Sunbury", "Sunshine", "Sunshine North", "Sunshine West", 
+            "Surrey Hills", "Sydenham", "Tarneit", "Templestowe", "Templestowe Lower", "Thomastown", "Toorak", "Upper Ferntree Gully", "Vermont", "Vermont South", "Wantirna", 
+            "Wantirna South", "Werribee", "Wheelers Hill", "Whittlesea", "Williams Landing", "Williamstown", "Windsor", "Wyndham Vale", "Yarra Glen", "Yarraville"
+        ];
+
+        function smartFilter(query) {
+            var q = query.trim().toLowerCase(); if (q.length === 0) return [];
+            return LOCATIONS.filter(function(l) { return l.toLowerCase().indexOf(q) !== -1; }).slice(0, 8);
+        }
+
+        function closeAutoCompleteDropdown() {
+            if (activeAC) { activeAC.parentNode.removeChild(activeAC); activeAC = null; activeInput = null; }
+        }
+
+        function positionAndAttachAutocomplete(input) {
+            var wrap = input.parentNode;
+            input.addEventListener('input', function() {
+                var matches = smartFilter(this.value);
+                var existing = wrap.querySelector('.ac-list');
+                if (existing) existing.parentNode.removeChild(existing);
+                if (matches.length === 0) return;
+
+                var list = document.createElement('div');
+                list.className = 'ac-list';
+                
+                matches.forEach(function(loc) {
+                    var item = document.createElement('div');
+                    item.className = 'ac-item';
+                    item.textContent = loc;
+
+                    item.addEventListener('touchstart', function() { item.classList.add('touched'); });
+                    item.addEventListener('touchend', function(e) {
+                        input.value = loc; closeAutoCompleteDropdown();
+                        input.dispatchEvent(new Event('input', { bubbles: true })); e.preventDefault();
+                    });
+                    item.addEventListener('mousedown', function(e) {
+                        input.value = loc; closeAutoCompleteDropdown();
+                        input.dispatchEvent(new Event('input', { bubbles: true })); e.preventDefault();
+                    });
+                    list.appendChild(item);
+                });
+
+                wrap.appendChild(list); list.classList.add('open');
+                activeAC = list; activeInput = input;
+            });
+
+            input.addEventListener('focus', function() { if(this.value.trim()) this.dispatchEvent(new Event('input')); });
+            input.addEventListener('blur', function() { setTimeout(closeAutoCompleteDropdown, 220); });
+        }
+
+        /* STORAGE MANIFEST RUNNERS */
+        function getLocalStorageItem(key) { return localStorage.getItem('mob_biz_' + key) || ''; }
+
+        function fmtMobile(input) {
+            var d = input.value.replace(/\D/g, '').slice(0, 10);
+            if (d.length > 7) input.value = d.slice(0, 4) + ' ' + d.slice(4, 7) + ' ' + d.slice(7);
+            else if (d.length > 4) input.value = d.slice(0, 4) + ' ' + d.slice(4);
+            else input.value = d;
+        }
+        function fmtABN(input) {
+            var d = input.value.replace(/\D/g, '').slice(0, 11);
+            if (d.length > 8) input.value = d.slice(0, 2) + ' ' + d.slice(2, 5) + ' ' + d.slice(5, 8) + ' ' + d.slice(8);
+            else if (d.length > 5) input.value = d.slice(0, 2) + ' ' + d.slice(2, 5) + ' ' + d.slice(5);
+            else if (d.length > 2) input.value = d.slice(0, 2) + ' ' + d.slice(2);
+            else input.value = d;
+        }
+        function fmtBSB(input) {
+            var d = input.value.replace(/\D/g, '').slice(0, 6);
+            input.value = d.length > 3 ? d.slice(0, 3) + '-' + d.slice(3) : d;
+        }
+
+        function toggleThemeEngine() {
+            var body = document.body; var current = body.getAttribute('data-theme');
+            var next = current === 'dark' ? 'light' : 'dark'; body.setAttribute('data-theme', next);
+            localStorage.setItem('mob_invoice_theme', next);
+        }
+
+        function initThemeEngine() {
+            var saved = localStorage.getItem('mob_invoice_theme') || 'light';
+            document.body.setAttribute('data-theme', saved);
+        }
+
+        /* VALIDATION RULES */
+        var RULES = {
+            name: { req: false, run: function() { return { ok: true, m: '' }; }},
+            mobile: { req: true, run: function(v) { var d = v.replace(/\D/g, ''); return { ok: d.startsWith('04') && d.length === 10, m: 'Must start with 04' }; }},
+            abn: { req: true, run: function(v) { return { ok: v.replace(/\D/g, '').length === 11, m: 'Requires ABN 11 digits' }; }},
+            bank: { req: false, run: function() { return { ok: true, m: '' }; }},
+            accname: { req: false, run: function() { return { ok: true, m: '' }; }},
+            bsb: { req: true, run: function(v) { return { ok: v.replace(/\D/g, '').length === 6, m: 'Requires BSB 6 digits' }; }},
+            accnum: { req: true, run: function(v) { var d = v.replace(/\D/g, ''); return { ok: d.length >= 6 && d.length <= 10, m: 'Account must be 6-10 digits' }; }}
+        };
+
+        function validateField(f) {
+            var el = document.getElementById('s-' + f); var hint = document.getElementById('hint-' + f);
+            if (!el || !hint) return true; var val = el.value.trim(); var rule = RULES[f];
+            if (val.length === 0 && !rule.req) { el.style.borderColor = 'var(--border-line)'; hint.textContent = ''; return true; }
+            var res = rule.run(val);
+            if (res.ok) { el.style.borderColor = 'var(--brand-green)'; hint.className = 'validation-hint ok'; hint.textContent = '✓'; return true; }
+            else { el.style.borderColor = 'var(--brand-red)'; hint.className = 'validation-hint error'; hint.textContent = res.m; return false; }
+        }
+
+        function saveProfileData() {
+            var valid = ['mobile', 'abn', 'bsb', 'accnum'].every(validateField);
+            if (!valid) { showToastNotification('Fix highlighted fields before saving.'); return; }
+            ['name', 'mobile', 'abn', 'bank', 'accname', 'bsb', 'accnum'].forEach(function(f) {
+                localStorage.setItem('mob_biz_' + f, document.getElementById('s-' + f).value.trim());
+            });
+            loadProfilePreferencesMatrix(); showToastNotification('Configuration parameters stored successfully.'); toggleSettingsDrawer();
+        }
+
+        function clearProfileData() {
+            if (!confirm('Purge stored configuration data?')) return;
+            ['name', 'mobile', 'abn', 'bank', 'accname', 'bsb', 'accnum'].forEach(function(f) {
+                localStorage.removeItem('mob_biz_' + f); var el = document.getElementById('s-' + f); if (el) { el.value = ''; el.style.borderColor='var(--border-line)'; }
+            });
+            loadProfilePreferencesMatrix(); showToastNotification('Profile configuration cleared.');
+        }
+
+        function loadProfilePreferencesMatrix() {
+            ['name', 'mobile', 'abn', 'bank', 'accname', 'bsb', 'accnum'].forEach(function(f) {
+                var el = document.getElementById('s-' + f); if (el) el.value = getLocalStorageItem(f);
+            });
+            document.getElementById('b-bank').textContent = getLocalStorageItem('bank') || '-';
+            document.getElementById('b-accname').textContent = getLocalStorageItem('accname') || '-';
+            document.getElementById('b-bsb').textContent = getLocalStorageItem('bsb') || '-';
+            document.getElementById('b-accnum').textContent = getLocalStorageItem('accnum') || '-';
+            syncPrint();
+        }
+
+        /* INLINE DATA LINE GENERATORS */
+        function addNewTableTripRow() {
+            cardIndexCounter++;
+            var tbody = document.getElementById('tripBody');
+            var row = document.createElement('tr');
+            row.id = 'tripRow_' + cardIndexCounter;
+
+            var now = new Date();
+            var dayStr = String(now.getDate()).padStart(2, '0');
+            var monthStr = String(now.getMonth() + 1).padStart(2, '0');
+            var initialMaskedDate = dayStr + '/' + monthStr + '/2026';
+
+            row.innerHTML = 
+                '<td class="col-date">' +
+                    '<input type="text" class="date-masked-input" placeholder="DD/MM/2026" value="' + initialMaskedDate + '" maxlength="10" oninput="handleDateMaskInput(this)">' +
+                '</td>' +
+                '<td class="col-route">' +
+                    '<div class="route-flex-box">' +
+                        '<div class="ac-wrap"><input type="text" class="pickup-input-node" placeholder="Pickup..." autocomplete="off"></div>' +
+                        '<span class="arrow-badge-icon">→</span>' +
+                        '<div class="ac-wrap"><input type="text" class="dropoff-input-node" placeholder="Dropoff..." autocomplete="off"></div>' +
+                    '</div>' +
+                '</td>' +
+                '<td class="col-qty">' +
+                    '<input type="number" class="qty-input" value="1" min="0" step="1" data-role="qty" oninput="calculateFinancialTotals()">' +
+                '</td>' +
+                '<td class="col-rate">' +
+                    '<div class="rate-flex-column">' +
+                        '<input type="number" class="price-input" placeholder="0.00" min="0" step="0.01" data-role="price" oninput="calculateFinancialTotals()">' +
+                        '<div class="segment-toggle-row">' +
+                            '<button type="button" class="segment-btn active" data-val="Trip" onclick="setSegmentedType(this)">Trip</button>' +
+                            '<button type="button" class="segment-btn" data-val="Hour" onclick="setSegmentedType(this)">Hour</button>' +
+                        '</div>' +
+                        '<span class="rate-type-label" style="display:none;">per Trip</span>' +
+                        '<input type="hidden" data-role="type" value="Trip">' +
+                    '</div>' +
+                '</td>' +
+                '<td class="col-note">' +
+                    '<span class="note-reveal-link" onclick="toggleCardNoteField(' + cardIndexCounter + ')">+ Add Note</span>' +
+                    '<div class="note-input-wrapper" id="noteWrapper_' + cardIndexCounter + '">' +
+                        '<input type="text" class="note-style-input" placeholder="Optional notes..." autocomplete="off" oninput="calculateFinancialTotals()">' +
+                        '<span class="note-remove-x" onclick="toggleCardNoteField(' + cardIndexCounter + ', true)">✕</span>' +
+                    '</div>' +
+                '</td>' +
+                '<td class="col-amt-del">' +
+                    '<div class="amt-delete-flex">' +
+                        '<span class="val-total-amount">$0.00</span>' +
+                        '<button class="btn-line-kill" onclick="removeTableRow(' + cardIndexCounter + ')" aria-label="Remove row">✕</button>' +
+                    '</div>' +
+                '</td>';
+
+            tbody.appendChild(row);
+            
+            var dateInput = row.querySelector('.date-masked-input');
+            if (dateInput) dateInput.setAttribute('data-display', initialMaskedDate);
+
+            positionAndAttachAutocomplete(row.querySelector('.pickup-input-node'));
+            positionAndAttachAutocomplete(row.querySelector('.dropoff-input-node'));
+            calculateFinancialTotals();
+        }
+
+        function removeTableRow(idx) {
+            if (document.querySelectorAll('#tripBody tr').length <= 1) { showToastNotification('At least one log sheet entry is required.'); return; }
+            var el = document.getElementById('tripRow_' + idx); if (el) el.parentNode.removeChild(el);
+            calculateFinancialTotals();
+        }
+
+        function handleDateMaskInput(input) {
+            var raw = input.value.replace(/\D/g, '').slice(0, 4);
+            var formatted = '';
+            if (raw.length > 0) formatted += raw.slice(0, 2);
+            if (raw.length > 2) formatted += '/' + raw.slice(2, 4);
+            if (raw.length === 4) formatted += '/2026';
+            input.value = formatted; input.setAttribute('data-display', formatted);
+            calculateFinancialTotals();
+        }
+
+        function setSegmentedType(btn) {
+            var wrap = btn.parentNode; wrap.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active'); var val = btn.getAttribute('data-val');
+            var cell = wrap.parentNode; cell.querySelector('[data-role="type"]').value = val;
+            cell.querySelector('.rate-type-label').textContent = 'per ' + val;
+            calculateFinancialTotals();
+        }
+
+        function toggleCardNoteField(idx, clear) {
+            var wrap = document.getElementById('noteWrapper_' + idx);
+            var link = wrap.parentNode.querySelector('.note-reveal-link');
+            if (clear) { wrap.querySelector('input').value = ''; wrap.classList.remove('active'); link.style.display = 'inline-block'; }
+            else { wrap.classList.add('active'); link.style.display = 'none'; wrap.querySelector('input').focus(); }
+            calculateFinancialTotals();
+        }
+
+        /* LEDGER ENGINE TOTALS RUNNERS */
+        function calculateFinancialTotals() {
+            var rows = document.querySelectorAll('#tripBody tr');
+            var subtotal = 0;
+            var pBody = document.getElementById('printTableBody'); pBody.innerHTML = '';
+
+            rows.forEach(function(row) {
+                var dateInput = row.querySelector('.date-masked-input');
+                var dateFormatted = (dateInput && dateInput.getAttribute('data-display')) || '-';
+                var pickupVal = row.querySelector('.pickup-input-node').value || '-';
+                var dropoffVal = row.querySelector('.dropoff-input-node').value || '-';
+                var qty = parseFloat(row.querySelector('[data-role="qty"]').value) || 0;
+                var price = parseFloat(row.querySelector('[data-role="price"]').value) || 0;
+                var type = row.querySelector('[data-role="type"]').value;
+                var note = row.querySelector('.note-style-input').value;
+
+                var rowCost = qty * price; subtotal += rowCost;
+                row.querySelector('.val-total-amount').textContent = '$' + rowCost.toFixed(2);
+
+                var tr = document.createElement('tr');
+                tr.innerHTML = 
+                    '<td>' + dateFormatted + '</td>' +
+                    '<td>' +
+                        '<div style="font-weight:600;">' + pickupVal + ' &rarr; ' + dropoffVal + '</div>' +
+                        (note ? '<div style="font-size:7.5pt; font-style:italic; color:#666; margin-top:2px;">Note: ' + note + '</div>' : '') +
+                    '</td>' +
+                    '<td style="text-align:center;">' + qty + '</td>' +
+                    '<td>$' + price.toFixed(2) + ' <span style="font-size:8pt; color:#666;">' + type + '</span></td>' +
+                    '<td class="print-amt-col">$' + rowCost.toFixed(2) + '</td>';
+                pBody.appendChild(tr);
+            });
+
+            var gst = subtotal * 0.1; var total = subtotal + gst;
+            var formattedTotal = '$' + total.toFixed(2);
+
+            document.getElementById('stickyTotalDisplay').textContent = formattedTotal;
+            document.getElementById('p-sub').textContent = '$' + subtotal.toFixed(2);
+            document.getElementById('p-gst').textContent = '$' + gst.toFixed(2);
+            document.getElementById('p-total').textContent = formattedTotal;
+            syncPrint();
+        }
+
+        function syncPrint() {
+            document.getElementById('p-driver').textContent = getLocalStorageItem('name') || '-';
+            document.getElementById('p-mobile').textContent = getLocalStorageItem('mobile') || '-';
+            document.getElementById('p-abn').textContent = getLocalStorageItem('abn') || '-';
+            document.getElementById('p-invnum').textContent = document.getElementById('f-invnum').value || '-';
+            document.getElementById('p-client').textContent = document.getElementById('f-client').value || '-';
+            document.getElementById('p-ref').textContent = document.getElementById('f-ref').value || '-';
+            document.getElementById('p-units').textContent = document.querySelectorAll('#tripBody tr').length;
+        }
+
+        function generateInvoiceNumber() {
+            var d = new Date(); var num = 'INV-' + String(d.getFullYear()).slice(-2) + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '-' + String(d.getHours()).padStart(2, '0') + String(d.getMinutes()).padStart(2, '0');
+            document.getElementById('f-invnum').value = num; syncPrint();
+        }
+
+        function resetWorksheetInvoiceSequence() {
+            if (!confirm('Reset current invoice parameters?')) return;
+            document.getElementById('f-client').value = ''; document.getElementById('f-ref').value = '';
+            document.getElementById('tripBody').innerHTML = '';
+            generateInvoiceNumber(); addNewTableTripRow();
+        }
+
+        function showToastNotification(msg) {
+            var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+            setTimeout(function() { t.classList.remove('show'); }, 2500);
+        }
+
+        function toggleSettingsDrawer() {
+            var d = document.getElementById('setupDrawer'); var b = document.getElementById('settingsToggle');
+            var isopen = d.classList.contains('open');
+            if (isopen) { d.classList.remove('open'); b.classList.remove('open'); }
+            else { d.classList.add('open'); b.classList.add('open'); }
+        }
+
+        function executeSystemPrintSequence() { syncPrint(); setTimeout(window.print, 50); }
+
+        function dispatchOutlookEmailTemplate() {
+            var invNum = document.getElementById('f-invnum').value || 'New Invoice';
+            var clientName = document.getElementById('f-client').value || 'Valued Client';
+            var totalAmt = document.getElementById('p-total').textContent || '$0.00';
+            var driverName = getLocalStorageItem('name') || 'Your Taxi Driver';
+
+            var subjectText = "Tax Invoice " + invNum + " - OZ Maxi Taxi Services - " + clientName;
+            var bodyText = "Hi,\n\n" +
+                           "Please find attached Tax Invoice " + invNum + " for taxi services provided.\n\n" +
+                           "Total Amount Due: " + totalAmt + " (including GST).\n\n" +
+                           "Kindly process via direct bank transfer using the bank details listed at the bottom of the invoice document.\n\n" +
+                           "Thank you for traveling with us.\n\n" +
+                           "Best Regards,\n" + driverName + "\n" +
+                           "OZ Maxi Taxi Services";
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(bodyText).then(function() {
+                    showToastNotification("📋 Body text copied! Launching Outlook client window...");
+                    setTimeout(function() { window.location.href = "mailto:?subject=" + encodeURIComponent(subjectText); }, 1000);
+                });
+            } else {
+                window.location.href = "mailto:?subject=" + encodeURIComponent(subjectText);
+            }
+        }
+
+        /* AUTOBOOT INITS */
+        initThemeEngine(); loadProfilePreferencesMatrix(); generateInvoiceNumber(); addNewTableTripRow();
+        if (!getLocalStorageItem('name')) toggleSettingsDrawer();
+    </script>
+</body>
+</html>
